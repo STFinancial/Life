@@ -10,11 +10,12 @@ import javax.swing.SwingUtilities;
 
 
 public class Application {
+	LifeGUI gui;
+	Universe uni;
 	
 	public final String LOG_PATH = "C://Users/Timothy/Documents/LifeLog/baselineData.dat";
 	public final String FRAME_ICON_PATH = "";
-	LifeGUI gui;
-	Universe uni;
+	
 	public final int UNIVERSE_SIZE = 200;
 	public final int INITIAL_BLOCKS = 0;
 	
@@ -28,8 +29,7 @@ public class Application {
 		uni = new Universe(this, UNIVERSE_SIZE, INITIAL_BLOCKS);
 		gui = new LifeGUI(uni, this);
 		uni.seedObject(LifeStructure.ACORN, 0, 0);
-		
-		gui.panel.repaint();
+		gui.uniPanel.repaint();
 		uni.doXGenerations(20000);
 	}
 	

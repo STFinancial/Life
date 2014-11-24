@@ -8,39 +8,68 @@ import java.io.IOException;
 
 import items.LifeStructure;
 
-public class Universe{
+public class Universe {
+	public static volatile boolean interrupt;
+	
 	public byte[][] currentUniverse; //always the updated version
 	public byte[][] nextUniverse; //used as a holder during the update loop
 	public byte[][] tempUniverse; //used for pointer stuffs
 	private int leftX, rightX, topY, bottomY;
 	private byte current;
 	private int total;
-	private int size;
+	int size;
 	private byte newValue;
 	private final Color[] colors = new Color[]{Color.BLACK, Color.BLUE, Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK};
-	private Application app;
+	public Application app;
+	public final int MIN_SQUARE_SIZE = 2;
+	public int actualSH;
+	public int actualSW;
 	
 	public Universe(Application app, int size, int initialBlock) {
+		interrupt = false;
 		this.app = app;
 		currentUniverse = new byte[size][size];
 		nextUniverse = new byte[size][size];
 		this.size = size;
+		System.out.println(Thread.currentThread().getId());
 	}
 	
-	public void paintSquares(Graphics g) {
-		int ph = app.gui.PANEL_HEIGHT;
-		int pw = app.gui.PANEL_WIDTH;
-		int squareHeight = ph / size;
-		int squareWidth = pw / size;
-		if (squareHeight < 2 || squareWidth < 2) {
-			squareHeight = 2;
-			squareWidth = 2;
+	public void paintSquares(Graphics g, int leftX, int topY) {
+		
+//		System.out.println("Rendering at X: "+ leftX);
+//		System.out.println("Rendering at Y " + topY);
+		int ph = app.gui.uniPanel.getHeight();
+		int pw = app.gui.uniPanel.getWidth();
+		//default is height and width of size of panel
+		
+		
+		actualSH = ph / size; // the height of the squares is the height of the panel over the size
+		actualSW = pw / size; // the width of the squares is the width of the panel over the size
+		
+		//if it is less than 2 pixels, we need to set it to 2 pixels
+		if (actualSH < MIN_SQUARE_SIZE) {
+			actualSH = MIN_SQUARE_SIZE;			
+		}
+		if (actualSW < MIN_SQUARE_SIZE) {
+			actualSW = MIN_SQUARE_SIZE;
 		}
 		
-		for (int i = 0; i < size; ++i) {
-			for (int j = 0; j < size; ++j) {
-				g.setColor(colors[currentUniverse[i][j]]);
-				g.fillRect(j * squareWidth, i * squareHeight, squareWidth, squareHeight);
+//		int lx = leftX;
+//		int ty = topY;
+		
+		//we render from the y index to y index + the smaller of(size, numPossibleRectangles)
+		//so if height is 1000 and size is 1000
+		//rect height is 2
+		//y index passed in is 352
+		//we render from 352 to 352 + 500
+		//if height is 1000 and size is 300
+		//rect height is 3
+		//passed in 52
+		//we render from 52 to 
+		for (int j = topY; j < Math.min(size, topY + (ph / actualSH)); ++j) {
+			for (int i = leftX; i < Math.min(size, leftX + (pw / actualSW)); ++i) {
+				g.setColor(colors[currentUniverse[j][i]]);
+				g.fillRect((i - leftX) * actualSH, (j - topY) * actualSW, actualSW, actualSH);
 			}
 		}
 	}
@@ -101,7 +130,6 @@ public class Universe{
 			for (int i = 0; i < size; ++i) {
 				for (int j = 0; j < size; ++j) {
 					update(i,j);
-					
 				}
 			}
 			
@@ -133,8 +161,12 @@ public class Universe{
 	}
 	
 	public void doXGenerations(int numGens) {
+		System.out.println(Thread.currentThread().getId());
 		int genNum = 0; //this could be useful to measure the duration of a system
 		while (numGens-- != 0) {
+			if (interrupt) {
+				break;
+			}
 			genNum++;
 			
 			for (int i = 0; i < size; ++i) {
@@ -149,12 +181,25 @@ public class Universe{
 			currentUniverse = nextUniverse;
 			nextUniverse = tempUniverse;
 			
-			app.gui.panel.repaint();;
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			
+			app.gui.uniPanel.repaint();
 		}
 	}
 	
+	public void clear() {
+		interrupt = true;
+	}
+	
+	
+	
 	//is this even necessary or should I just return the new value of that square
-	private void update(int y, int x) {
+	private byte update(int y, int x) {
 		//need to handle edge cases
 		//start with torroidal shape
 		total = 0;
@@ -207,5 +252,6 @@ public class Universe{
 		}
 		
 		nextUniverse[y][x] = newValue;
+		return newValue;
 	}
 }
