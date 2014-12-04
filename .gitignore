@@ -27,6 +27,8 @@ $RECYCLE.BIN/
 
 # Icon must ends with two \r.
 Icon
+# Java Class files
+*.class
 
 # Thumbnails
 ._*

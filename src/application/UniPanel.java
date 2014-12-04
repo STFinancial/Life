@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import javax.swing.JPanel;
 
@@ -35,7 +37,7 @@ public class UniPanel extends JPanel {
 	}
 	
 	
-	public class MouseHandler implements MouseListener, MouseMotionListener{
+	public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener{
 
 		public int prevX;
 		public int prevY;
@@ -48,38 +50,36 @@ public class UniPanel extends JPanel {
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			// TODO Auto-generated method stub
+			// TODO Code here to make that square into a live square
+			// TODO Handle Zooming
+			//Perhaps I only allow clicking to make squares live while paused?
+			//Perhaps I have a button to toggle it?
+			
 		}
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-			
+					
 		}
 
 		@Override
 		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
 			prevX = e.getXOnScreen();
 			prevY = e.getYOnScreen();
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent arg0) {
-			// TODO Auto-generated method stub
 			int panelWidth = uni.app.gui.uniPanel.getWidth();
 			int panelHeight = uni.app.gui.uniPanel.getHeight();
 			
@@ -132,8 +132,17 @@ public class UniPanel extends JPanel {
 
 		@Override
 		public void mouseMoved(MouseEvent arg0) {
-			// TODO Auto-generated method stub
 			
+		}
+
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			int rotation = e.getWheelRotation();
+			if (rotation < 0) {
+				uni.zoomOut(rotation);
+			} else {
+				uni.zoomIn(rotation);
+			}
 		}
 		
 	}

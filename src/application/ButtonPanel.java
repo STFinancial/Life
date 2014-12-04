@@ -14,7 +14,7 @@ public class ButtonPanel extends JPanel{
 	
 	LifeButton b1;
 	LifeButton b2;
-	LifeButton clearButton;
+	LifeButton pauseButton;
 	
 	
 	public ButtonPanel(Universe uni, int height, int width) {
@@ -22,10 +22,10 @@ public class ButtonPanel extends JPanel{
 		
 		setPreferredSize(new Dimension(width, height));
 		
-		clearButton = new LifeButton("Clear");
-		clearButton.setSize(100, 50);
-		clearButton.addActionListener(new ButtonHandler());
-		add(clearButton);
+		pauseButton = new LifeButton("Pause");
+		pauseButton.setSize(100, 50);
+		pauseButton.addActionListener(new ButtonHandler());
+		add(pauseButton);
 		repaint();
 	}
 
@@ -43,9 +43,9 @@ public class ButtonPanel extends JPanel{
 		public void actionPerformed(ActionEvent arg0) {
 			LifeButton s = (LifeButton) arg0.getSource();
 			//for now assume we have a button
-			if (s.equals(clearButton)) {
-				System.out.println("Clear button pressed");
-				uni.clear();
+			if (s.equals(pauseButton)) {
+				System.out.println("Pause button pressed");
+				uni.pause();
 			}
 			
 		}

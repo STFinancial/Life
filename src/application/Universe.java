@@ -9,7 +9,7 @@ import java.io.IOException;
 import items.LifeStructure;
 
 public class Universe {
-	public static volatile boolean interrupt;
+	public static volatile boolean interrupt = false;
 	
 	public byte[][] currentUniverse; //always the updated version
 	public byte[][] nextUniverse; //used as a holder during the update loop
@@ -164,8 +164,12 @@ public class Universe {
 		System.out.println(Thread.currentThread().getId());
 		int genNum = 0; //this could be useful to measure the duration of a system
 		while (numGens-- != 0) {
-			if (interrupt) {
-				break;
+			while (interrupt) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					
+				}
 			}
 			genNum++;
 			
@@ -181,19 +185,15 @@ public class Universe {
 			currentUniverse = nextUniverse;
 			nextUniverse = tempUniverse;
 			
-//			try {
-//				Thread.sleep(100);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 			
 			app.gui.uniPanel.repaint();
 		}
 	}
 	
-	public void clear() {
-		interrupt = true;
+	
+	
+	public void pause() {
+		interrupt = !interrupt;
 	}
 	
 	
@@ -253,5 +253,13 @@ public class Universe {
 		
 		nextUniverse[y][x] = newValue;
 		return newValue;
+	}
+	
+	public void zoomOut(int zoomFactor) {
+		
+	}
+	
+	public void zoomIn(int zoomFactor) {
+		
 	}
 }
