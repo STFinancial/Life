@@ -24,6 +24,7 @@ public class Universe {
 	public final int MIN_SQUARE_SIZE = 2;
 	public int actualSH;
 	public int actualSW;
+	public int zoomValue = 1;
 	
 	public Universe(Application app, int size, int initialBlock) {
 		interrupt = false;
@@ -256,10 +257,19 @@ public class Universe {
 	}
 	
 	public void zoomOut(int zoomFactor) {
-		
+		//can't zoom out to more than a factor of 1
+		if (zoomValue - zoomFactor < 1) {
+			zoomValue = 1;
+		} else {
+			zoomValue -= zoomFactor;
+		}
 	}
 	
 	public void zoomIn(int zoomFactor) {
-		
+		if (zoomValue + zoomFactor > 10) { //this is arbitrary for now, will be more well defined later
+			zoomValue = 10;
+		} else {
+			zoomValue += zoomFactor;
+		}
 	}
 }
