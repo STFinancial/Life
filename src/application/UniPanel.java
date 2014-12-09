@@ -25,6 +25,7 @@ public class UniPanel extends JPanel {
 		handler = new MouseHandler();
 		addMouseListener(handler);
 		addMouseMotionListener(handler);
+		addMouseWheelListener(handler);
 		setBackground(Color.BLACK);
 	}
 	
@@ -138,10 +139,12 @@ public class UniPanel extends JPanel {
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			int rotation = e.getWheelRotation();
-			if (rotation < 0) {
-				uni.zoomOut(rotation);
-			} else {
+			rotation *= -1; //the current setup is the opposite of what I want
+			System.out.println(rotation);
+			if (rotation > 0) {
 				uni.zoomIn(rotation);
+			} else {
+				uni.zoomOut(rotation);
 			}
 		}
 		

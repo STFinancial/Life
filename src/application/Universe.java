@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import items.LifeStructure;
 
-public class Universe {
+public class Universe implements GenericUniverse{
 	public static volatile boolean interrupt = false;
 	
 	public byte[][] currentUniverse; //always the updated version
@@ -24,7 +24,7 @@ public class Universe {
 	public final int MIN_SQUARE_SIZE = 2;
 	public int actualSH;
 	public int actualSW;
-	public int zoomValue = 1;
+	public int zoomFactor = 1;
 	
 	public Universe(Application app, int size, int initialBlock) {
 		interrupt = false;
@@ -54,6 +54,9 @@ public class Universe {
 		if (actualSW < MIN_SQUARE_SIZE) {
 			actualSW = MIN_SQUARE_SIZE;
 		}
+		
+		actualSW *= zoomFactor;
+		actualSH *= zoomFactor;
 		
 //		int lx = leftX;
 //		int ty = topY;
@@ -199,6 +202,12 @@ public class Universe {
 	
 	
 	
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 	//is this even necessary or should I just return the new value of that square
 	private byte update(int y, int x) {
 		//need to handle edge cases
@@ -256,20 +265,34 @@ public class Universe {
 		return newValue;
 	}
 	
-	public void zoomOut(int zoomFactor) {
-		//can't zoom out to more than a factor of 1
-		if (zoomValue - zoomFactor < 1) {
-			zoomValue = 1;
+	public void zoomOut(int val) {
+		//values are negative
+		if (zoomFactor + val < 1) {
+			zoomFactor = 1;
 		} else {
-			zoomValue -= zoomFactor;
+			zoomFactor += val;
 		}
+		System.out.println("Zoomed out by " + (val * -1) + " new val: " + zoomFactor);
 	}
 	
-	public void zoomIn(int zoomFactor) {
-		if (zoomValue + zoomFactor > 10) { //this is arbitrary for now, will be more well defined later
-			zoomValue = 10;
+	public void zoomIn(int val) {
+		if (zoomFactor + val > 10) { //this is arbitrary for now, will be more well defined later
+			zoomFactor = 10;
 		} else {
-			zoomValue += zoomFactor;
+			zoomFactor += val;
 		}
+		System.out.println("Zoomed in by " + val + " new val: " + zoomFactor);
 	}
+
+	
+
+	@Override
+	public void runIndefinitely() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	
 }
