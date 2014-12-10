@@ -8,8 +8,12 @@ import java.io.IOException;
 
 import items.LifeStructure;
 
-public class Universe implements GenericUniverse{
+public class Universe implements GenericUniverse {
 	public static volatile boolean interrupt = false;
+	public static volatile boolean running; //tells us whether or not the universe is currently doing generations
+	public static volatile boolean stopped = false;
+	public static volatile int speed = 10;
+	public static volatile int zoomFactor = 1;
 	
 	public byte[][] currentUniverse; //always the updated version
 	public byte[][] nextUniverse; //used as a holder during the update loop
@@ -24,9 +28,14 @@ public class Universe implements GenericUniverse{
 	public final int MIN_SQUARE_SIZE = 2;
 	public int actualSH;
 	public int actualSW;
-	public int zoomFactor = 1;
+	public int MAX_ZOOM_FACTOR = 10;
+	public int MIN_ZOOM_FACTOR = 1;
+	public final int MIN_SPEED = 0;
+	public final int MAX_SPEED = 10;
+
 	
 	public Universe(Application app, int size, int initialBlock) {
+		running = false;
 		interrupt = false;
 		this.app = app;
 		currentUniverse = new byte[size][size];
@@ -167,6 +176,7 @@ public class Universe implements GenericUniverse{
 	public void doXGenerations(int numGens) {
 		System.out.println(Thread.currentThread().getId());
 		int genNum = 0; //this could be useful to measure the duration of a system
+		running = true;
 		while (numGens-- != 0) {
 			while (interrupt) {
 				try {
@@ -175,6 +185,7 @@ public class Universe implements GenericUniverse{
 					
 				}
 			}
+			
 			genNum++;
 			
 			for (int i = 0; i < size; ++i) {
@@ -189,15 +200,23 @@ public class Universe implements GenericUniverse{
 			currentUniverse = nextUniverse;
 			nextUniverse = tempUniverse;
 			
+			//wait a time specified by the speed
+			try {
+				Thread.sleep((long) (Math.pow((speed - MAX_SPEED), 2) * 5));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			
 			app.gui.uniPanel.repaint();
 		}
+		running = false;
 	}
 	
 	
 	
 	public void pause() {
 		interrupt = !interrupt;
+		running = !running;
 	}
 	
 	
@@ -273,6 +292,11 @@ public class Universe implements GenericUniverse{
 			zoomFactor += val;
 		}
 		System.out.println("Zoomed out by " + (val * -1) + " new val: " + zoomFactor);
+		
+		if (!running) {
+			app.gui.uniPanel.repaint();
+		}
+		
 	}
 	
 	public void zoomIn(int val) {
@@ -282,6 +306,11 @@ public class Universe implements GenericUniverse{
 			zoomFactor += val;
 		}
 		System.out.println("Zoomed in by " + val + " new val: " + zoomFactor);
+		
+		if (!running) {
+			app.gui.uniPanel.repaint();
+		}
+		
 	}
 
 	
@@ -289,7 +318,51 @@ public class Universe implements GenericUniverse{
 	@Override
 	public void runIndefinitely() {
 		// TODO Auto-generated method stub
+		running = true;
+		int genNum = 0;
+		while (true) {
+			while (interrupt) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					
+				}
+			}
+			if (stopped) { break; }
 		
+			
+			genNum++;
+			
+			for (int i = 0; i < size; ++i) {
+				for (int j = 0; j < size; ++j) {
+					update(i, j);
+				}
+			}
+			
+			//at the end of each generation, we need to update the pointers
+			//so that current always points to the newest iteration
+			tempUniverse = currentUniverse; //store the current in a temp
+			currentUniverse = nextUniverse;
+			nextUniverse = tempUniverse;
+			
+			
+			app.gui.uniPanel.repaint();
+		}
+		running = false;
+	}
+
+	@Override
+	public void increaseSpeed() {
+		if (++speed > MAX_SPEED) {
+			speed = MAX_SPEED;
+		}
+	}
+
+	@Override
+	public void decreaseSpeed() {
+		if (--speed < MIN_SPEED) {
+			speed = MIN_SPEED;
+		}
 	}
 
 

@@ -8,4 +8,7 @@ public abstract interface GenericUniverse {
 	
 	public abstract void zoomIn(int zoomFactor);
 	public abstract void zoomOut(int zoomFactor);
+	
+	public abstract void increaseSpeed();
+	public abstract void decreaseSpeed();
 }
